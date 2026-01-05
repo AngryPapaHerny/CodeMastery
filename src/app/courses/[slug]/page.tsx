@@ -56,6 +56,57 @@ export default function CourseDetailPage() {
     // Determine what video to show: Current Lesson Video -> Course Intro Video -> Placeholder
     const activeVideoUrl = currentLesson?.video_url || course.video_url;
 
+    // Helper function to render video player
+    const renderVideoPlayer = (url: string) => {
+        if (!url) return <div style={{ color: 'var(--text-secondary)' }}>동영상이 없습니다.</div>;
+
+        // 1. YouTube
+        const youtubeMatch = url.match(/(?:youtu\.be\/|youtube\.com\/.*v=)([^&]+)/);
+        if (youtubeMatch) {
+            const videoId = youtubeMatch[1];
+            return (
+                <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ maxHeight: '60vh' }}
+                ></iframe>
+            );
+        }
+
+        // 2. Vimeo
+        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+        if (vimeoMatch) {
+            const videoId = vimeoMatch[1];
+            return (
+                <iframe
+                    src={`https://player.vimeo.com/video/${videoId}`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                    style={{ maxHeight: '60vh' }}
+                ></iframe>
+            );
+        }
+
+        // 3. Native Video (mp4, webm, etc.)
+        return (
+            <video
+                key={url} // Force reload on source change
+                src={url}
+                controls
+                style={{ width: '100%', height: '100%', maxHeight: '60vh' }}
+                poster={course.thumbnail_url}
+            />
+        );
+    };
+
     return (
         <div style={{ paddingTop: '80px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Video Player Section */}
@@ -68,19 +119,8 @@ export default function CourseDetailPage() {
                 justifyContent: 'center',
                 position: 'relative'
             }}>
-                {activeVideoUrl ? (
-                    <video
-                        key={activeVideoUrl} // Force reload on source change
-                        src={activeVideoUrl}
-                        controls
-                        style={{ width: '100%', height: '100%', maxHeight: '60vh' }}
-                        poster={course.thumbnail_url}
-                    />
-                ) : (
-                    <div style={{ color: 'var(--text-secondary)' }}>동영상이 없습니다.</div>
-                )}
+                {renderVideoPlayer(activeVideoUrl)}
             </div>
-
             {/* Content Section */}
             <div className="container" style={{ flex: 1, padding: '40px 0', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '40px' }}>
 
