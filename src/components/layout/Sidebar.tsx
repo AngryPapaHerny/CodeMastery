@@ -62,6 +62,7 @@ export function Sidebar() {
                         <>
                             <div style={{ margin: '12px 0', borderTop: '1px solid var(--border)' }} />
                             <SidebarLink href="/dashboard/admin" >👑 강사 모드</SidebarLink>
+                            <SidebarLink href="/dashboard/admin/courses">📚 강의 관리 (수정)</SidebarLink>
                         </>
                     )}
                 </nav>
