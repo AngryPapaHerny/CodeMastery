@@ -1,108 +1,142 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { createClient } from '@/lib/supabase';
+import { useParams } from 'next/navigation';
 
-export default function CourseDetailPage({ params }: { params: { slug: string } }) {
-    const [activeTab, setActiveTab] = useState<'content' | 'qna'>('content');
+export default function CourseDetailPage() {
+    const params = useParams();
+    const [course, setCourse] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('curriculum');
 
-    // Helper to safely unwrap params
-    const { slug } = React.use(params as any) as { slug: string };
+    useEffect(() => {
+        async function fetchCourse() {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from('courses')
+                .select('*')
+                .eq('id', params.slug) // Assuming slug is the ID for now. 
+                .single();
+
+            setCourse(data);
+            setLoading(false);
+        }
+        fetchCourse();
+    }, [params.slug]);
+
+    if (loading) return <div style={{ paddingTop: '100px', textAlign: 'center' }}>로딩 중...</div>;
+    if (!course) return <div style={{ paddingTop: '100px', textAlign: 'center' }}>강의를 찾을 수 없습니다.</div>;
 
     return (
-        <div className="container" style={{ padding: '40px 20px', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
-            {/* Main Content Area */}
-            <div>
-                <div style={{
-                    aspectRatio: '16/9',
-                    backgroundColor: 'black',
-                    borderRadius: 'var(--radius-lg)',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-secondary)'
-                }}>
-                    {/* Mock Video Player */}
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>▶️</div>
-                        <p>Video Player Placeholder for {slug}</p>
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '40px' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '16px' }}>
-                        제 1강: Next.js 14 환경 설정과 아키텍처 이해
-                    </h1>
-                    <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
-                        <button
-                            onClick={() => setActiveTab('content')}
-                            style={{
-                                padding: '12px 0',
-                                borderBottom: activeTab === 'content' ? '2px solid var(--primary)' : '2px solid transparent',
-                                fontWeight: activeTab === 'content' ? 700 : 400,
-                                color: activeTab === 'content' ? 'var(--text-primary)' : 'var(--text-secondary)'
-                            }}
-                        >
-                            강의 자료
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('qna')}
-                            style={{
-                                padding: '12px 0',
-                                borderBottom: activeTab === 'qna' ? '2px solid var(--primary)' : '2px solid transparent',
-                                fontWeight: activeTab === 'qna' ? 700 : 400,
-                                color: activeTab === 'qna' ? 'var(--text-primary)' : 'var(--text-secondary)'
-                            }}
-                        >
-                            질문 & 답변
-                        </button>
-                    </div>
-
-                    <div style={{ lineHeight: '1.7', color: 'var(--text-secondary)' }}>
-                        <p>
-                            이번 강의에서는 Next.js 14의 새로운 App Router 아키텍처에 대해 알아봅니다.
-                            파일 시스템 기반 라우팅과 서버 컴포넌트의 개념을 확실하게 잡아봅시다.
-                        </p>
-                    </div>
-                </div>
+        <div style={{ paddingTop: '80px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {/* Video Player Section */}
+            <div style={{
+                width: '100%',
+                height: '60vh',
+                backgroundColor: '#000',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+            }}>
+                {course.video_url ? (
+                    <video
+                        src={course.video_url}
+                        controls
+                        style={{ width: '100%', height: '100%', maxHeight: '60vh' }}
+                        poster={course.thumbnail_url}
+                    />
+                ) : (
+                    <div style={{ color: 'var(--text-secondary)' }}>동영상이 없습니다.</div>
+                )}
             </div>
 
-            {/* Sidebar: Curriculum */}
-            <div>
-                <Card style={{ position: 'sticky', top: '100px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '20px' }}>커리큘럼</h3>
+            {/* Content Section */}
+            <div className="container" style={{ flex: 1, padding: '40px 0', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '40px' }}>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <CurriculumItem active title="01. 환경 설정과 아키텍처" duration="12:40" />
-                        <CurriculumItem title="02. Routing Fundamentals" duration="15:30" />
-                        <CurriculumItem title="03. Server vs Client Components" duration="20:10" />
-                        <CurriculumItem title="04. Data Fetching Patterns" duration="18:45" />
-                        <CurriculumItem title="05. Styling Modern Apps" duration="14:20" />
+                {/* Main Content */}
+                <div>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '16px' }}>
+                        {course.title}
+                    </h1>
+                    <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '40px' }}>
+                        {course.description}
+                    </p>
+
+                    {/* Tabs */}
+                    <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', gap: '32px' }}>
+                            <TabButton active={activeTab === 'curriculum'} onClick={() => setActiveTab('curriculum')}>커리큘럼</TabButton>
+                            <TabButton active={activeTab === 'qna'} onClick={() => setActiveTab('qna')}>질문 & 답변</TabButton>
+                            <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>수강평</TabButton>
+                        </div>
                     </div>
 
-                    <Button fullWidth style={{ marginTop: '24px' }}>과제 제출하기</Button>
-                </Card>
+                    {activeTab === 'curriculum' && (
+                        <div style={{ color: 'var(--text-secondary)' }}>
+                            <h3>강의 소개</h3>
+                            <p>{course.description}</p>
+                            <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#18181b', borderRadius: '8px' }}>
+                                <p>난이도: {course.level}</p>
+                                <p>가격: {course.price.toLocaleString()}원</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'qna' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <Input placeholder="질문을 입력하세요..." />
+                                <Button>질문하기</Button>
+                            </div>
+                            <p style={{ color: 'var(--text-secondary)' }}>아직 등록된 질문이 없습니다.</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Sidebar */}
+                <div>
+                    <Card style={{ position: 'sticky', top: '100px' }}>
+                        <div style={{ marginBottom: '24px' }}>
+                            <span style={{ fontSize: '2rem', fontWeight: 800 }}>{course.price === 0 ? '무료' : `${course.price.toLocaleString()}원`}</span>
+                        </div>
+                        <Button fullWidth size="lg" style={{ marginBottom: '12px' }}>수강 신청하기</Button>
+                        <Button fullWidth variant="outline">장바구니 담기</Button>
+
+                        <ul style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                            <li>✓ 무제한 수강 가능</li>
+                            <li>✓ 모바일/PC 지원</li>
+                            <li>✓ 수료증 발급</li>
+                            <li>✓ 멘토링 지원</li>
+                        </ul>
+                    </Card>
+                </div>
             </div>
         </div>
     );
 }
 
-function CurriculumItem({ title, duration, active = false }: { title: string, duration: string, active?: boolean }) {
+function TabButton({ children, active, onClick }: { children: React.ReactNode, active: boolean, onClick: () => void }) {
     return (
-        <div style={{
-            padding: '12px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: active ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-            color: active ? 'var(--primary)' : 'var(--text-secondary)',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-        }}>
-            <span style={{ fontSize: '0.95rem', fontWeight: active ? 600 : 400 }}>{title}</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>{duration}</span>
-        </div>
+        <button
+            onClick={onClick}
+            style={{
+                padding: '16px 0',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderBottom: active ? '2px solid var(--primary)' : '2px solid transparent',
+                color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontWeight: active ? 600 : 400,
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'all 0.2s'
+            }}
+        >
+            {children}
+        </button>
     );
 }

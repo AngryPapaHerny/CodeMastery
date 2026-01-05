@@ -1,7 +1,32 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase';
 
 export function Sidebar() {
+    const [role, setRole] = useState<string | null>(null);
+    const supabase = createClient();
+
+    useEffect(() => {
+        async function getRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile) {
+                    setRole(profile.role);
+                }
+            }
+        }
+        getRole();
+    }, []);
+
     return (
         <aside style={{
             width: '260px',
@@ -32,15 +57,19 @@ export function Sidebar() {
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <SidebarLink href="/dashboard/profile">프로필 설정</SidebarLink>
                     <SidebarLink href="/dashboard/billing">결제 내역</SidebarLink>
-                    <div style={{ margin: '12px 0', borderTop: '1px solid var(--border)' }} />
-                    <SidebarLink href="/dashboard/admin" >👑 강사 모드 (Demo)</SidebarLink>
+
+                    {role === 'admin' && (
+                        <>
+                            <div style={{ margin: '12px 0', borderTop: '1px solid var(--border)' }} />
+                            <SidebarLink href="/dashboard/admin" >👑 강사 모드</SidebarLink>
+                        </>
+                    )}
                 </nav>
             </div>
 
             <div style={{ marginTop: 'auto', paddingTop: '40px' }}>
-                <Button variant="ghost" fullWidth style={{ justifyContent: 'flex-start', color: '#ef4444' }}>
-                    로그아웃
-                </Button>
+                {/* Logout is handled in Header usually, but sidebar can have it too. 
+            Using simple href for now or Auth logic if we duplicated it */}
             </div>
         </aside>
     );

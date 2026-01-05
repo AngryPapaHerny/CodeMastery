@@ -1,62 +1,65 @@
-import { CourseCard } from '@/components/course/CourseCard';
+"use client";
 
-// Dummy Data
-const COURSES = [
-    {
-        id: 'fullstack-2026',
-        title: '2026 풀스택 마스터 클래스',
-        description: 'Next.js 14, TypeScript, Prisma로 완성하는 모던 웹 개발의 모든 것.',
-        level: '중급',
-        thumbnail: 'https://placehold.co/600x400/101010/6366f1?text=Fullstack',
-        price: 330000,
-    },
-    {
-        id: 'python-ai',
-        title: '파이썬으로 시작하는 AI 입문',
-        description: '기초 문법부터 데이터 분석, 간단한 머신러닝 모델 구현까지.',
-        level: '초급',
-        thumbnail: 'https://placehold.co/600x400/101010/ec4899?text=Python+AI',
-        price: 220000,
-    },
-    {
-        id: 'algorithm-pass',
-        title: '코딩테스트 합격 알고리즘',
-        description: '대기업 기출 문제 풀이와 효율적인 알고리즘 설계를 위한 필수 강의.',
-        level: '고급',
-        thumbnail: 'https://placehold.co/600x400/101010/22c55e?text=Algorithm',
-        price: 180000,
-    },
-    {
-        id: 'react-native',
-        title: '리액트 네이티브 앱 개발',
-        description: 'iOS와 Android 앱을 한 번에. 실전 배달 앱 클론 코딩.',
-        level: '중급',
-        thumbnail: 'https://placehold.co/600x400/101010/f59e0b?text=App+Dev',
-        price: 290000,
-    },
-];
+import { useEffect, useState } from 'react';
+import { CourseCard } from '@/components/course/CourseCard';
+import { createClient } from '@/lib/supabase';
 
 export default function CoursesPage() {
-    return (
-        <div className="container" style={{ padding: '60px 20px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-                <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px' }}>
-                    전체 강의 목록
-                </h1>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
-                    당신의 커리어를 다음 단계로 끌어올릴 최고의 강의들을 만나보세요.
-                </p>
-            </div>
+    const [courses, setCourses] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                gap: '30px'
-            }}>
-                {COURSES.map((course) => (
-                    <CourseCard key={course.id} {...course} />
-                ))}
-            </div>
+    useEffect(() => {
+        async function fetchCourses() {
+            const supabase = createClient();
+            const { data } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+            setCourses(data || []);
+            setLoading(false);
+        }
+        fetchCourses();
+    }, []);
+
+    if (loading) return <div className="container" style={{ padding: '80px 0', textAlign: 'center' }}>로딩 중...</div>;
+
+    return (
+        <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
+            {/* Header Section */}
+            <section style={{ padding: '80px 0', borderBottom: '1px solid var(--border)' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                    <div>
+                        <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px' }}>
+                            전체 강의 목록
+                        </h1>
+                        <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '600px' }}>
+                            초급부터 고급까지, 당신의 실력을 향상시킬 수 있는 최고의 커리큘럼을 만나보세요.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Course Grid */}
+            <section style={{ padding: '80px 0' }}>
+                <div className="container">
+                    {courses.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                            등록된 강의가 없습니다.
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '40px' }}>
+                            {courses.map((course) => (
+                                <CourseCard
+                                    key={course.id}
+                                    id={course.id}
+                                    title={course.title}
+                                    description={course.description || ''}
+                                    level={course.level}
+                                    price={course.price}
+                                    thumbnail={course.thumbnail_url || 'https://via.placeholder.com/600x400?text=No+Image'}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
         </div>
     );
 }
