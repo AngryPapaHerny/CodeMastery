@@ -40,14 +40,18 @@ export default function AdminCommunityPage() {
         const previousPosts = [...posts];
         setPosts(posts.filter(p => p.id !== postId));
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('posts')
             .delete()
-            .eq('id', postId);
+            .eq('id', postId)
+            .select();
 
         if (error) {
             alert('삭제 실패: ' + error.message);
-            setPosts(previousPosts); // Revert on failure
+            setPosts(previousPosts); // Revert
+        } else if (data && data.length === 0) {
+            alert('삭제권한이 없거나 이미 삭제된 게시글입니다.');
+            setPosts(previousPosts); // Revert
         } else {
             alert('게시글이 삭제되었습니다.');
         }
