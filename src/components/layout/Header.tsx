@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import NotificationBell from '@/components/common/NotificationBell';
 
 export function Header() {
   const [user, setUser] = useState<any>(null);
@@ -66,14 +67,15 @@ export function Header() {
           {user ? (
             <>
               {/* Optional: Show user greeting or Avatar */}
+              <NotificationBell />
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginRight: '8px' }}>
                 {user.email?.split('@')[0]}님
               </span>
               <div style={{ display: 'flex', gap: '8px' }}>
-                 <Link href="/dashboard">
-                   <Button variant="ghost" size="sm">대시보드</Button>
-                 </Link>
-                 <Button variant="secondary" size="sm" onClick={handleLogout}>로그아웃</Button>
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="sm">대시보드</Button>
+                </Link>
+                <Button variant="secondary" size="sm" onClick={handleLogout}>로그아웃</Button>
               </div>
             </>
           ) : (

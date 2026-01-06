@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 
+import PointBadge from '@/components/community/PointBadge';
+
 export function Sidebar() {
     const [role, setRole] = useState<string | null>(null);
     const supabase = createClient();
@@ -38,6 +40,10 @@ export function Sidebar() {
             backgroundColor: 'var(--background)',
             padding: '24px'
         }}>
+            <div style={{ marginBottom: '24px' }}>
+                <PointBadge />
+            </div>
+
             <div style={{ marginBottom: '40px' }}>
                 <h2 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '1px', marginBottom: '16px' }}>
                     My Learning
@@ -47,6 +53,8 @@ export function Sidebar() {
                     <SidebarLink href="/dashboard/courses">내 강의실</SidebarLink>
                     <SidebarLink href="/dashboard/assignments">과제 관리</SidebarLink>
                     <SidebarLink href="/dashboard/certificates">수료증</SidebarLink>
+                    <div style={{ margin: '12px 0', borderTop: '1px solid var(--border)' }} />
+                    <SidebarLink href="/community">커뮤니티</SidebarLink>
                 </nav>
             </div>
 
@@ -63,6 +71,7 @@ export function Sidebar() {
                             <div style={{ margin: '12px 0', borderTop: '1px solid var(--border)' }} />
                             <SidebarLink href="/dashboard/admin" >👑 강사 모드</SidebarLink>
                             <SidebarLink href="/dashboard/admin/courses">📚 강의 관리 (수정)</SidebarLink>
+                            <SidebarLink href="/dashboard/admin/community">🛡️ 커뮤니티 관리</SidebarLink>
                         </>
                     )}
                 </nav>

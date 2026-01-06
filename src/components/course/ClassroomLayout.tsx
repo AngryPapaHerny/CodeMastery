@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { PlayCircle, FileText, Menu, MessageSquare, StickyNote, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import CourseQnASection from './CourseQnASection';
 
 interface ClassroomLayoutProps {
     course: any;
@@ -109,10 +110,7 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
                             )}
 
                             {activeTab === 'qna' && (
-                                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                    <MessageSquare size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                                    <p>질문 기능이 준비 중입니다.</p>
-                                </div>
+                                <CourseQnASection courseId={course.id} />
                             )}
 
                             {activeTab === 'notes' && (

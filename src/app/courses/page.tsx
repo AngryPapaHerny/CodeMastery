@@ -6,16 +6,35 @@ import { createClient } from '@/lib/supabase';
 
 export default function CoursesPage() {
     const [courses, setCourses] = useState<any[]>([]);
+    const [enrolledCourseIds, setEnrolledCourseIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchCourses() {
+        async function fetchData() {
             const supabase = createClient();
-            const { data } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
-            setCourses(data || []);
+
+            // 1. Fetch Courses
+            const { data: coursesData } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+            setCourses(coursesData || []);
+
+            // 2. Fetch User & Enrollments
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                const { data: userEnrollments } = await supabase
+                    .from('enrollments')
+                    .select('course_id')
+                    .eq('user_id', user.id);
+
+                if (userEnrollments) {
+                    const ids = new Set(userEnrollments.map(e => e.course_id));
+                    setEnrolledCourseIds(ids);
+                }
+            }
+
             setLoading(false);
         }
-        fetchCourses();
+        fetchData();
     }, []);
 
     if (loading) return <div className="container" style={{ padding: '80px 0', textAlign: 'center' }}>로딩 중...</div>;
@@ -53,6 +72,7 @@ export default function CoursesPage() {
                                     description={course.description || ''}
                                     level={course.level}
                                     price={course.price}
+                                    isEnrolled={enrolledCourseIds.has(course.id)}
                                     thumbnail={course.thumbnail_url || 'https://via.placeholder.com/600x400?text=No+Image'}
                                 />
                             ))}
