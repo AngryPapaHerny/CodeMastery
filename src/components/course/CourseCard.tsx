@@ -66,7 +66,7 @@ export function CourseCard({ id, title, description, level, thumbnail, price, is
                         {isEnrolled ? '수강 중' : `${price.toLocaleString()}원`}
                     </span>
                     <Link href={`/courses/${id}`}>
-                        <Button size="sm" variant={isEnrolled ? "outline" : "default"} style={isEnrolled ? { borderColor: 'var(--primary)', color: 'var(--primary)' } : {}}>
+                        <Button size="sm" variant={isEnrolled ? "outline" : "primary"} style={isEnrolled ? { borderColor: 'var(--primary)', color: 'var(--primary)' } : {}}>
                             {isEnrolled ? '이어 학습하기' : '수강하기'}
                         </Button>
                     </Link>
