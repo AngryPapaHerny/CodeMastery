@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { ArrowLeft, User, Clock, Eye, MessageSquare, Tag, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Clock, Eye, MessageSquare, Tag, CheckCircle, Paperclip } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import CommentSection from '@/components/community/CommentSection';
@@ -126,6 +126,40 @@ export default function PostDetailPage() {
                 <div style={{ fontSize: '1.1rem', lineHeight: 1.8, marginBottom: '60px', whiteSpace: 'pre-wrap' }}>
                     {post.content}
                 </div>
+
+                {/* Attachments */}
+                {post.attachments && post.attachments.length > 0 && (
+                    <div style={{ marginBottom: '60px', padding: '20px', backgroundColor: '#27272a', borderRadius: '8px' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Paperclip size={18} /> 첨부파일 <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{post.attachments.length}개</span>
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {post.attachments.map((file: any, idx: number) => (
+                                <a
+                                    key={idx}
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '12px',
+                                        padding: '12px 16px', backgroundColor: '#3f3f46', borderRadius: '6px',
+                                        color: 'white', textDecoration: 'none', transition: 'background 0.2s'
+                                    }}
+                                    className="hover:bg-zinc-600"
+                                >
+                                    <div style={{ padding: '8px', backgroundColor: '#52525b', borderRadius: '4px' }}>
+                                        <Paperclip size={16} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '0.9rem', fontWeight: 500 }}>{file.name}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>{(file.size / 1024).toFixed(1)} KB</div>
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', color: '#3b82f6' }}>다운로드</div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Comments Section */}
                 <CommentSection postId={post.id} currentUser={currentUser} postAuthorId={post.user_id} isQnA={post.category === 'qna'} />
