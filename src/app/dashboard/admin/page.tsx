@@ -6,77 +6,21 @@ import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboardPage() {
-    const [stats, setStats] = useState({
-        totalStudents: 0,
-        totalSubmissions: 0,
-        recentSubmissions: [] as any[]
-    });
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+    const router = useRouter();
+    // ... existing stats state ...
 
-    useEffect(() => {
-        async function fetchData() {
-            // 1. Total Students
-            const { count: studentCount } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('role', 'student');
-
-            // 2. Total Submissions
-            const { count: submissionCount } = await supabase
-                .from('assignment_submissions')
-                .select('*', { count: 'exact', head: true });
-
-            // 3. Recent Submissions (with profiles joined)
-            const { data: submissions } = await supabase
-                .from('assignment_submissions')
-                .select(`
-          *,
-          assignments (title),
-          profiles (full_name)
-        `)
-                .order('submitted_at', { ascending: false })
-                .limit(5);
-
-            setStats({
-                totalStudents: studentCount || 0,
-                totalSubmissions: submissionCount || 0,
-                recentSubmissions: submissions || []
-            });
-            setLoading(false);
-        }
-
-        fetchData();
-    }, []);
+    // ... existing useEffect ...
 
     const handleQuickAction = async (action: string) => {
-        const title = prompt(`${action} 제목을 입력하세요:`);
-        if (!title) return;
-
         if (action === '공지사항') {
-            const content = prompt('공지사항 내용을 입력하세요:');
-            if (!content) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return alert('로그인이 필요합니다.');
-
-            const { error } = await supabase.from('posts').insert({
-                user_id: user.id,
-                title,
-                content,
-                category: 'notice',
-                tags: ['notice']
-            });
-
-            if (error) {
-                alert('공지사항 등록 실패: ' + error.message);
-            } else {
-                alert('공지사항이 등록되었습니다.');
-            }
+            router.push('/community/new?cat=notice');
         } else if (action === '쿠폰') {
+            const title = prompt('쿠폰 이름을 입력하세요:');
+            if (!title) return;
+
             const discount = prompt('할인 금액을 입력하세요 (원):');
             if (!discount) return;
 

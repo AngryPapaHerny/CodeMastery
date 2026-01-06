@@ -17,15 +17,24 @@ function NewPostForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        title: '',
-        category: searchParams.get('cat') || 'free',
-        content: '',
-        course_id: searchParams.get('course') || null
-    });
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const supabase = createClient();
+
+    useEffect(() => {
+        const checkRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (data?.role === 'admin') setIsAdmin(true);
+            }
+        };
+        checkRole();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -88,7 +97,8 @@ function NewPostForm() {
                         >
                             <option value="free">자유게시판</option>
                             <option value="qna">질문 & 답변</option>
-                            {/* Notice is admin only, hidden for now or handled via policy */}
+                            {/* Admin Only Notice Option */}
+                            {isAdmin && <option value="notice">📢 공지사항</option>}
                         </select>
                     </div>
                     <Input
