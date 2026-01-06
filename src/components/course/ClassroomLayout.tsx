@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { PlayCircle, FileText, Menu, MessageSquare, StickyNote, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
 import CourseQnASection from './CourseQnASection';
+import CourseAssignmentsSection from './CourseAssignmentsSection';
 
 interface ClassroomLayoutProps {
     course: any;
@@ -16,7 +16,7 @@ interface ClassroomLayoutProps {
 
 export default function ClassroomLayout({ course, lessons, currentLesson, setCurrentLesson, renderVideoPlayer }: ClassroomLayoutProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'curriculum' | 'qna' | 'notes'>('curriculum');
+    const [activeTab, setActiveTab] = useState<'curriculum' | 'qna' | 'notes' | 'assignments'>('curriculum');
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -71,6 +71,7 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
                             <span style={{ fontWeight: 600 }}>
                                 {activeTab === 'curriculum' && '커리큘럼'}
                                 {activeTab === 'qna' && '질문 & 답변'}
+                                {activeTab === 'assignments' && '과제'}
                                 {activeTab === 'notes' && '노트'}
                             </span>
                             <button onClick={toggleSidebar} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
@@ -111,6 +112,10 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
 
                             {activeTab === 'qna' && (
                                 <CourseQnASection courseId={course.id} />
+                            )}
+
+                            {activeTab === 'assignments' && (
+                                <CourseAssignmentsSection courseId={course.id} />
                             )}
 
                             {activeTab === 'notes' && (
@@ -157,6 +162,19 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
                                 setIsSidebarOpen(false);
                             } else {
                                 setActiveTab('qna');
+                                setIsSidebarOpen(true);
+                            }
+                        }}
+                    />
+                    <SidebarTab
+                        icon={<FileText size={24} />}
+                        label="과제"
+                        isActive={activeTab === 'assignments' && isSidebarOpen}
+                        onClick={() => {
+                            if (activeTab === 'assignments' && isSidebarOpen) {
+                                setIsSidebarOpen(false);
+                            } else {
+                                setActiveTab('assignments');
                                 setIsSidebarOpen(true);
                             }
                         }}

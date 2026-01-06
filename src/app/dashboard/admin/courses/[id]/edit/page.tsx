@@ -38,6 +38,9 @@ export default function EditCoursePage() {
     });
     const [isAddingLesson, setIsAddingLesson] = useState(false);
 
+    // Assignments Data
+    const [assignments, setAssignments] = useState<any[]>([]);
+
     useEffect(() => {
         async function fetchData() {
             // 1. Fetch Course
@@ -63,6 +66,15 @@ export default function EditCoursePage() {
                 .order('order_index', { ascending: true });
 
             setLessons(lessonsData || []);
+
+            // 3. Fetch Assignments
+            const { data: assignmentsData } = await supabase
+                .from('assignments')
+                .select('*')
+                .eq('course_id', courseId)
+                .order('created_at', { ascending: false });
+
+            setAssignments(assignmentsData || []);
             setLoading(false);
         }
         fetchData();
@@ -121,6 +133,12 @@ export default function EditCoursePage() {
         setLessons(lessons.filter(l => l.id !== id));
     };
 
+    const handleDeleteAssignment = async (id: string) => {
+        if (!confirm('과제를 삭제하시겠습니까? 제출된 답안도 모두 삭제됩니다.')) return;
+        await supabase.from('assignments').delete().eq('id', id);
+        setAssignments(assignments.filter(a => a.id !== id));
+    };
+
     if (loading) return <div style={{ padding: '40px' }}>로딩 중...</div>;
 
     return (
@@ -172,6 +190,43 @@ export default function EditCoursePage() {
                             </Button>
                         )}
                     </div>
+
+                    {/* Assignments Section */}
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>과제 관리</h2>
+                            <Link href={`/dashboard/admin/courses/${courseId}/assignments/new`}>
+                                <Button size="sm" variant="outline">
+                                    <Plus size={16} style={{ marginRight: '8px' }} /> 과제 만들기
+                                </Button>
+                            </Link>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {assignments.length === 0 ? (
+                                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+                                    등록된 과제가 없습니다.
+                                </div>
+                            ) : (
+                                assignments.map((assignment: any) => (
+                                    <Card key={assignment.id} style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div>
+                                            <Link href={`/dashboard/admin/courses/${courseId}/assignments/${assignment.id}`} style={{ fontWeight: 600, fontSize: '1.05rem', display: 'block', marginBottom: '4px' }} className="hover:underline">
+                                                {assignment.title}
+                                            </Link>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                {assignment.points}점 | 마감: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '없음'}
+                                            </div>
+                                        </div>
+                                        <Button variant="ghost" size="sm" onClick={() => handleDeleteAssignment(assignment.id)} style={{ color: '#ef4444' }}>
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    </Card>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
                 </div>
 
                 {/* Right: Course Settings */}
