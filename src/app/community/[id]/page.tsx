@@ -74,10 +74,12 @@ export default function PostDetailPage() {
     const handleDelete = async () => {
         if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
 
-        const { error } = await supabase.from('posts').delete().eq('id', id);
+        const { data, error } = await supabase.from('posts').delete().eq('id', id).select();
 
         if (error) {
             alert('삭제 실패: ' + error.message);
+        } else if (!data || data.length === 0) {
+            alert('삭제 실패: 게시글을 찾을 수 없거나 권한이 없습니다.');
         } else {
             alert('게시글이 삭제되었습니다.');
             router.push('/community');
@@ -175,6 +177,11 @@ export default function PostDetailPage() {
                             <div style={{ fontWeight: 700 }}>{post.profiles?.full_name || '알 수 없음'}</div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                 {new Date(post.created_at).toLocaleDateString()} · {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {post.updated_at && post.updated_at !== post.created_at && (
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginLeft: '8px' }}>
+                                        (수정됨: {new Date(post.updated_at).toLocaleDateString()})
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>

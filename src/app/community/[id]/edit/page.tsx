@@ -150,14 +150,19 @@ function EditPostForm() {
             updated_at: new Date().toISOString() // Explicitly update timestamp
         };
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('posts')
             .update(payload)
-            .eq('id', id);
+            .eq('id', id)
+            .select();
 
         if (error) {
             console.error('Post update error:', error);
             alert(`수정 실패: ${error.message}`);
+            setLoading(false);
+        } else if (!data || data.length === 0) {
+            console.error('Post update failed: No rows returned');
+            alert('수정 실패: 게시글을 찾을 수 없거나 권한이 없습니다.');
             setLoading(false);
         } else {
             alert('게시글이 수정되었습니다.');
