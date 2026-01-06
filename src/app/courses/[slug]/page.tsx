@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { createClient } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { PlayCircle, FileText, Lock } from 'lucide-react';
+import ClassroomLayout from '@/components/course/ClassroomLayout';
 
 export default function CourseDetailPage() {
     const params = useParams();
@@ -154,6 +155,20 @@ export default function CourseDetailPage() {
 
     const activeVideoUrl = currentLesson?.video_url || course.video_url;
 
+    if (isEnrolled && currentLesson) { // Ensure currentLesson is set before showing classroom? Or show generic if null.
+        // Actually, if enrolled, we prefer the ClassroomLayout.
+        // But what if currentLesson is null (e.g. course has no lessons)? layout handles it comfortably.
+        return (
+            <ClassroomLayout
+                course={course}
+                lessons={lessons}
+                currentLesson={currentLesson}
+                setCurrentLesson={setCurrentLesson}
+                renderVideoPlayer={renderVideoPlayer}
+            />
+        );
+    }
+
     return (
         <div style={{ paddingTop: '80px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ width: '100%', height: '60vh', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -163,24 +178,15 @@ export default function CourseDetailPage() {
             <div className="container" style={{ flex: 1, padding: '40px 0', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '40px' }}>
                 <div>
                     <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>
-                        {currentLesson ? `[${currentLesson.order_index + 1}강] ${currentLesson.title}` : course.title}
+                        {course.title}
                     </h1>
+                    {/* Note: currentLesson title logic removed from here because if not enrolled, usually viewing Course Info, not specific lesson. 
+                        But we still show "Intro" if currentLesson is null. 
+                        And if user clicks locked lesson, we don't change video.
+                     */}
                     <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '24px' }}>
-                        {currentLesson?.description || course.description}
+                        {course.description}
                     </p>
-
-                    {currentLesson?.material_url && (
-                        <Card style={{ marginBottom: '40px', padding: '20px', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: '#1e293b', border: 'none' }}>
-                            <FileText color="#38bdf8" />
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, color: '#38bdf8', marginBottom: '4px' }}>강의 자료</div>
-                                <div style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>이 차시에는 학습 자료가 포함되어 있습니다.</div>
-                            </div>
-                            <a href={currentLesson.material_url} target="_blank" rel="noopener noreferrer">
-                                <Button size="sm" variant="outline">다운로드</Button>
-                            </a>
-                        </Card>
-                    )}
 
                     <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '32px' }}>
                         <div style={{ display: 'flex', gap: '32px' }}>
@@ -200,18 +206,13 @@ export default function CourseDetailPage() {
                                                 alert('수강 신청 후 학습할 수 있습니다.');
                                                 return;
                                             }
+                                            // Should not be reachable if enrolled logic works, but double check
                                             setCurrentLesson(lesson);
                                         }}
-                                        style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: currentLesson?.id === lesson.id ? 'rgba(255, 255, 255, 0.05)' : 'transparent' }}>
-                                        {isEnrolled ? (
-                                            <PlayCircle size={20} color={currentLesson?.id === lesson.id ? '#22c55e' : 'var(--text-secondary)'} />
-                                        ) : (
-                                            <Lock size={20} color="var(--text-secondary)" />
-                                        )}
+                                        style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: 'transparent' }}>
+                                        <Lock size={20} color="var(--text-secondary)" />
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: 600, color: currentLesson?.id === lesson.id ? 'white' : 'var(--text-secondary)' }}>
-                                                {idx + 1}. {lesson.title}
-                                            </div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{idx + 1}. {lesson.title}</div>
                                         </div>
                                     </div>
                                 ))
@@ -223,6 +224,12 @@ export default function CourseDetailPage() {
                         <div style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                             <h3>강의 상세</h3>
                             <p>{course.description}</p>
+                        </div>
+                    )}
+
+                    {activeTab === 'qna' && (
+                        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                            수강생 전용 공간입니다.
                         </div>
                     )}
                 </div>
