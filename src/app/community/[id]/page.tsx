@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { ArrowLeft, User, Clock, Eye, MessageSquare, Tag, CheckCircle, Paperclip } from 'lucide-react';
 import Link from 'next/link';
@@ -22,9 +22,11 @@ const categoryColors: any = {
 
 export default function PostDetailPage() {
     const { id } = useParams();
+    const router = useRouter(); // Added router
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [profile, setProfile] = useState<any>(null); // To check admin role
 
     const supabase = createClient();
 
@@ -35,6 +37,15 @@ export default function PostDetailPage() {
             // 1. Get User
             const { data: { user } } = await supabase.auth.getUser();
             setCurrentUser(user);
+
+            if (user) {
+                const { data: userProfile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                setProfile(userProfile);
+            }
 
             // 2. Get Post
             const { data, error } = await supabase
@@ -60,17 +71,67 @@ export default function PostDetailPage() {
         if (id) fetchPost();
     }, [id]);
 
+    const handleDelete = async () => {
+        if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return;
+
+        const { error } = await supabase.from('posts').delete().eq('id', id);
+
+        if (error) {
+            alert('삭제 실패: ' + error.message);
+        } else {
+            alert('게시글이 삭제되었습니다.');
+            router.push('/community');
+            router.refresh();
+        }
+    };
+
     if (loading) return <div style={{ padding: '100px 0', textAlign: 'center' }}>글을 불러오는 중...</div>;
 
     if (!post) return <div style={{ padding: '100px 0', textAlign: 'center' }}>게시글을 찾을 수 없습니다.</div>;
 
+    const isAuthor = currentUser?.id === post.user_id;
+    const isAdmin = profile?.role === 'admin';
+    const canManage = isAuthor || isAdmin;
+
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '80px 0' }}>
             {/* Header / Nav */}
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Link href="/community" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
                     <ArrowLeft size={16} /> 목록으로 돌아가기
                 </Link>
+
+                {canManage && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <Link href={`/community/${id}/edit`}>
+                            <button
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: '#27272a',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem'
+                                }}>
+                                수정
+                            </button>
+                        </Link>
+                        <button
+                            onClick={handleDelete}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem'
+                            }}>
+                            삭제
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Post Content */}
