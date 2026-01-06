@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { createClient } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
-import { PlayCircle, FileText } from 'lucide-react';
+import { PlayCircle, FileText, Lock } from 'lucide-react';
 
 export default function CourseDetailPage() {
     const params = useParams();
@@ -49,7 +49,10 @@ export default function CourseDetailPage() {
                 setLessons(lessonsData || []);
 
                 if (lessonsData && lessonsData.length > 0) {
-                    setCurrentLesson(lessonsData[0]);
+                    // Only set first lesson if we are sure? No, wait for enrollment check.
+                    // Actually, safer to NOT set it by default, ensuring Intro video plays.
+                    // Users can click if enrolled.
+                    // setCurrentLesson(lessonsData[0]); 
                 }
 
                 // 3. Check Enrollment (if logged in)
@@ -61,7 +64,14 @@ export default function CourseDetailPage() {
                         .eq('course_id', courseData.id)
                         .single();
 
-                    if (enrollment) setIsEnrolled(true);
+                    if (enrollment) {
+                        setIsEnrolled(true);
+                        // If enrolled, we CAN auto-play first lesson if desired, or let user choose.
+                        // Let's auto-play first lesson for enrolled users for convenience
+                        if (lessonsData && lessonsData.length > 0) {
+                            setCurrentLesson(lessonsData[0]);
+                        }
+                    }
                 }
             }
 
@@ -184,11 +194,24 @@ export default function CourseDetailPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {lessons.length === 0 ? <p style={{ color: 'var(--text-secondary)' }}>등록된 차시가 없습니다.</p> :
                                 lessons.map((lesson, idx) => (
-                                    <div key={lesson.id} onClick={() => setCurrentLesson(lesson)}
+                                    <div key={lesson.id}
+                                        onClick={() => {
+                                            if (!isEnrolled) {
+                                                alert('수강 신청 후 학습할 수 있습니다.');
+                                                return;
+                                            }
+                                            setCurrentLesson(lesson);
+                                        }}
                                         style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: currentLesson?.id === lesson.id ? 'rgba(255, 255, 255, 0.05)' : 'transparent' }}>
-                                        <PlayCircle size={20} color={currentLesson?.id === lesson.id ? '#22c55e' : 'var(--text-secondary)'} />
+                                        {isEnrolled ? (
+                                            <PlayCircle size={20} color={currentLesson?.id === lesson.id ? '#22c55e' : 'var(--text-secondary)'} />
+                                        ) : (
+                                            <Lock size={20} color="var(--text-secondary)" />
+                                        )}
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: 600, color: currentLesson?.id === lesson.id ? 'white' : 'var(--text-secondary)' }}>{idx + 1}. {lesson.title}</div>
+                                            <div style={{ fontWeight: 600, color: currentLesson?.id === lesson.id ? 'white' : 'var(--text-secondary)' }}>
+                                                {idx + 1}. {lesson.title}
+                                            </div>
                                         </div>
                                     </div>
                                 ))
