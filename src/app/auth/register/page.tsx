@@ -19,12 +19,20 @@ export default function RegisterPage() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!email || !password) {
+            setError('이메일과 비밀번호를 모두 입력해주세요.');
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError('비밀번호가 일치하지 않습니다.');
             return;
         }
         setLoading(true);
         setError(null);
+
+        console.log("Attempting signup with:", { email, name }); // Debug log
 
         const supabase = createClient();
         const { error: signUpError } = await supabase.auth.signUp({
@@ -38,6 +46,7 @@ export default function RegisterPage() {
         });
 
         if (signUpError) {
+            console.error("Signup error:", signUpError);
             setError(signUpError.message);
             setLoading(false);
         } else {

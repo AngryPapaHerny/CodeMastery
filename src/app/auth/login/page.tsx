@@ -17,6 +17,12 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!email || !password) {
+            setError('이메일과 비밀번호를 모두 입력해주세요.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
