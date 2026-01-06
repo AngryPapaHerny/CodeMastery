@@ -7,17 +7,60 @@ import { createClient } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AdminDashboardPage() {
     const router = useRouter();
-    // ... existing stats state ...
+    const [stats, setStats] = useState({
+        totalStudents: 0,
+        totalSubmissions: 0,
+        recentSubmissions: [] as any[]
+    });
+    const [loading, setLoading] = useState(true);
+    const supabase = createClient();
 
-    // ... existing useEffect ...
+    useEffect(() => {
+        async function fetchData() {
+            // 1. Total Students
+            const { count: studentCount } = await supabase
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+                .eq('role', 'student');
+
+            // 2. Total Submissions
+            const { count: submissionCount } = await supabase
+                .from('assignment_submissions')
+                .select('*', { count: 'exact', head: true });
+
+            // 3. Recent Submissions (with profiles joined)
+            const { data: submissions } = await supabase
+                .from('assignment_submissions')
+                .select(`
+          *,
+          assignments (title),
+          profiles (full_name)
+        `)
+                .order('submitted_at', { ascending: false })
+                .limit(5);
+
+            setStats({
+                totalStudents: studentCount || 0,
+                totalSubmissions: submissionCount || 0,
+                recentSubmissions: submissions || []
+            });
+            setLoading(false);
+        }
+
+        fetchData();
+    }, []);
 
     const handleQuickAction = async (action: string) => {
         if (action === '공지사항') {
             router.push('/community/new?cat=notice');
-        } else if (action === '쿠폰') {
+            return;
+        }
+
+        if (action === '쿠폰') {
             const title = prompt('쿠폰 이름을 입력하세요:');
             if (!title) return;
 

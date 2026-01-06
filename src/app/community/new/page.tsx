@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -17,6 +17,13 @@ function NewPostForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        title: '',
+        category: searchParams.get('cat') || 'free',
+        content: '',
+        course_id: searchParams.get('course') || null
+    });
     const [isAdmin, setIsAdmin] = useState(false);
 
     const supabase = createClient();
