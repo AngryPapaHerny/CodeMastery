@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -30,7 +31,9 @@ export default async function CommunityPage() {
                     <Link href="/community?cat=notice" style={{ color: 'var(--text-secondary)' }}>공지사항</Link>
                 </div>
 
-                <PostList />
+                <Suspense fallback={<div>게시글을 불러오는 중...</div>}>
+                    <PostList />
+                </Suspense>
             </div>
         </div>
     );
