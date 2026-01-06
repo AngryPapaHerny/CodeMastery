@@ -60,14 +60,30 @@ export default function AdminDashboardPage() {
             const content = prompt('공지사항 내용을 입력하세요:');
             if (!content) return;
 
-            await supabase.from('notices').insert({ title, content });
-            alert('공지사항이 등록되었습니다.');
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return alert('로그인이 필요합니다.');
+
+            const { error } = await supabase.from('posts').insert({
+                user_id: user.id,
+                title,
+                content,
+                category: 'notice',
+                tags: ['notice']
+            });
+
+            if (error) {
+                alert('공지사항 등록 실패: ' + error.message);
+            } else {
+                alert('공지사항이 등록되었습니다.');
+            }
         } else if (action === '쿠폰') {
             const discount = prompt('할인 금액을 입력하세요 (원):');
             if (!discount) return;
 
-            await supabase.from('coupons').insert({ code: title, discount_amount: parseInt(discount) });
-            alert(`쿠폰 [${title}]이 발행되었습니다.`);
+            // Check if coupons table exists or just mock for now
+            const { error } = await supabase.from('coupons').insert({ code: title, discount_amount: parseInt(discount) });
+            if (error) alert('쿠폰 발행 실패 (테이블이 없을 수 있습니다): ' + error.message);
+            else alert(`쿠폰 [${title}]이 발행되었습니다.`);
         }
     };
 

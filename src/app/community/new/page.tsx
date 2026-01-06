@@ -39,19 +39,29 @@ function NewPostForm() {
             return;
         }
 
-        const { error } = await supabase.from('posts').insert({
+        const payload: any = {
             user_id: user.id,
             title: formData.title,
             category: formData.category,
             content: formData.content,
-            course_id: formData.course_id
-        });
+        };
+
+        if (formData.course_id && formData.course_id !== '') {
+            payload.course_id = formData.course_id;
+        }
+
+        console.log('Inserting post:', payload);
+
+        const { error } = await supabase.from('posts').insert(payload);
 
         if (error) {
-            alert(`Error: ${error.message}`);
+            console.error('Post insert error:', error);
+            alert(`작성 실패: ${error.message} (${error.code})`);
             setLoading(false);
         } else {
+            alert('게시글이 등록되었습니다.');
             router.push('/community');
+            router.refresh();
         }
     };
 
