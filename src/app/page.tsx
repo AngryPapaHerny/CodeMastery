@@ -6,15 +6,7 @@ export default function Home() {
     return (
         <div className="container">
             {/* Hero Section */}
-            <section style={{
-                minHeight: '80vh',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-                padding: '60px 0'
-            }}>
+            <section className="hero-section">
                 <div style={{
                     marginBottom: '20px',
                     padding: '8px 16px',
@@ -26,27 +18,15 @@ export default function Home() {
                 }}>
                     🚀 2026년형 최신 커리큘럼 업데이트
                 </div>
-                <h1 style={{
-                    fontSize: '4.5rem',
-                    fontWeight: '800',
-                    marginBottom: '24px',
-                    lineHeight: '1.1',
-                    letterSpacing: '-2px'
-                }}>
+                <h1 className="hero-title">
                     코딩 교육의 <br />
                     <span className="text-gradient">새로운 기준</span>을 만나다
                 </h1>
-                <p style={{
-                    fontSize: '1.35rem',
-                    color: 'var(--text-secondary)',
-                    marginBottom: '48px',
-                    maxWidth: '700px',
-                    lineHeight: '1.6'
-                }}>
+                <p className="hero-text">
                     단순한 지식 전달을 넘어, 실전 문제 해결 능력을 기르는 프리미엄 교육 플랫폼.
                     현직 개발자의 1:1 코드 리뷰와 디스코드 멘토링으로 확실하게 성장하세요.
                 </p>
-                <div style={{ display: 'flex', gap: '20px' }}>
+                <div className="hero-buttons">
                     <Link href="/courses">
                         <Button size="lg" style={{ minWidth: '180px' }}>무료로 시작하기</Button>
                     </Link>

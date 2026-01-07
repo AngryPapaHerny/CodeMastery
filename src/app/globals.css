@@ -63,6 +63,7 @@ button {
 
 .text-gradient {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -75,4 +76,130 @@ button {
   transform: translateY(-4px);
   border-color: var(--primary);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+
+  .hidden-mobile,
+  .desktop-only {
+    display: none !important;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Form Layout */
+.form-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 0;
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  letter-spacing: -2px;
+}
+
+.hero-text {
+  font-size: 1.35rem;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-text {
+    font-size: 1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-buttons a,
+  .hero-buttons button {
+    width: 100%;
+  }
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+  display: flex;
+  min-height: calc(100vh - 80px);
+}
+
+.dashboard-sidebar {
+  width: 260px;
+  position: fixed;
+  top: 80px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--background);
+  z-index: 50;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 40px;
+  background-color: var(--background);
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .dashboard-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .dashboard-main {
+    margin-left: 0;
+    padding: 20px;
+  }
 }

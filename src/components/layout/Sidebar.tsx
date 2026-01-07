@@ -31,12 +31,8 @@ export function Sidebar() {
 
     return (
         <aside style={{
-            width: '260px',
-            borderRight: '1px solid var(--border)',
-            height: 'calc(100vh - 80px)', // Minus header height
-            position: 'fixed',
-            top: '80px',
-            left: 0,
+            width: '100%',
+            height: '100%',
             backgroundColor: 'var(--background)',
             padding: '24px'
         }}>
