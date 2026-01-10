@@ -9,7 +9,7 @@ import { loadTossPayments } from '@tosspayments/payment-sdk';
 const clientKey = "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"; // Test Key
 const customerKey = "YbX2HuSlsC9uVJW6NMRMj";
 
-export function Checkout({ price }: { price: number }) {
+export function Checkout({ price, orderName = "2026 풀스택 마스터 클래스", courseId }: { price: number, orderName?: string, courseId?: string }) {
     const [tossPayments, setTossPayments] = useState<any>(null);
 
     useEffect(() => {
@@ -30,10 +30,10 @@ export function Checkout({ price }: { price: number }) {
             await tossPayments.requestPayment('카드', {
                 amount: price,
                 orderId: Math.random().toString(36).slice(2),
-                orderName: "2026 풀스택 마스터 클래스",
+                orderName: orderName,
                 customerName: "김토스", // In real app, use user info
                 customerEmail: "customer123@gmail.com",
-                successUrl: `${window.location.origin}/payment/success`,
+                successUrl: `${window.location.origin}/payment/success${courseId ? `?courseId=${courseId}` : ''}`,
                 failUrl: `${window.location.origin}/payment/fail`,
             });
         } catch (error) {
@@ -48,7 +48,7 @@ export function Checkout({ price }: { price: number }) {
             <div style={{ padding: '24px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '8px', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>상품명</span>
-                    <span style={{ fontWeight: 600 }}>2026 풀스택 마스터 클래스</span>
+                    <span style={{ fontWeight: 600 }}>{orderName}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>결제 금액</span>

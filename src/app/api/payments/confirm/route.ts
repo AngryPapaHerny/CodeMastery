@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase';
 const TOSS_SECRET_KEY = "test_sk_zXLkKEypNArWmo50n37r3lmeAxEx";
 
 export async function POST(req: NextRequest) {
-    const { paymentKey, orderId, amount } = await req.json();
+    const { paymentKey, orderId, amount, courseId } = await req.json();
 
     // 1. Verify payment with Toss Payments Server
     const widgetSecretKey = TOSS_SECRET_KEY;
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         // 2. Save to Database (Supabase)
         const supabase = createClient();
 
-        // Get current user (optional, but good for associating payment)
+        // Get current user
         const { data: { user } } = await supabase.auth.getUser();
 
         const { error: dbError } = await supabase
@@ -46,15 +46,29 @@ export async function POST(req: NextRequest) {
                 payment_key: paymentKey,
                 amount: Number(amount),
                 status: 'DONE',
-                user_id: user?.id || null, // Associates with logged in user if available
+                user_id: user?.id || null,
                 receipt_url: data.receipt?.url || null
             });
 
         if (dbError) {
             console.error('DB Save Error:', dbError);
-            // Payment succeeded at Toss, but DB failed. 
-            // In real app, you might want to log this critical error or refund.
-            // For now, return success but note the error.
+        }
+
+        // 3. Enroll User (if courseId provided)
+        if (courseId && user) {
+            const { error: enrollError } = await supabase
+                .from('enrollments')
+                .insert({
+                    user_id: user.id,
+                    course_id: courseId
+                });
+
+            if (enrollError) {
+                // Ignore unique constraint error if already enrolled
+                if (enrollError.code !== '23505') {
+                    console.error('Enrollment Error:', enrollError);
+                }
+            }
         }
 
         return NextResponse.json({ status: 'success', data });

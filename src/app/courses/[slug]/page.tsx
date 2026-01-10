@@ -95,7 +95,12 @@ export default function CourseDetailPage() {
             return;
         }
 
-        if (!confirm('수강 신청하시겠습니까? (현재 무료 혜택 중)')) return;
+        if (course.price > 0) {
+            router.push(`/payment/checkout?courseId=${course.id}&price=${course.price}&title=${encodeURIComponent(course.title)}`);
+            return;
+        }
+
+        if (!confirm('무료로 수강 신청하시겠습니까?')) return;
 
         setEnrolling(true);
         const supabase = createClient();

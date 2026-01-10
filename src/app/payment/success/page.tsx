@@ -13,6 +13,7 @@ function SuccessContent() {
     const paymentKey = searchParams.get('paymentKey');
     const orderId = searchParams.get('orderId');
     const amount = searchParams.get('amount');
+    const courseId = searchParams.get('courseId');
 
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
@@ -30,7 +31,7 @@ function SuccessContent() {
                 const response = await fetch('/api/payments/confirm', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ paymentKey, orderId, amount }),
+                    body: JSON.stringify({ paymentKey, orderId, amount, courseId }),
                 });
 
                 const data = await response.json();
@@ -49,7 +50,7 @@ function SuccessContent() {
         }
 
         confirmPayment();
-    }, [paymentKey, orderId, amount]);
+    }, [paymentKey, orderId, amount, courseId]);
 
     return (
         <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
