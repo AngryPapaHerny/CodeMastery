@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { loadPaymentWidget, PaymentWidgetInstance } from '@tosspayments/payment-widget-sdk';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import { loadTossPayments } from '@tosspayments/payment-sdk';
 
 const clientKey = "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"; // Test Key
 const customerKey = "YbX2HuSlsC9uVJW6NMRMj";
