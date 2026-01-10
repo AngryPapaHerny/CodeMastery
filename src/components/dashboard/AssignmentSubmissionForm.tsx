@@ -1,27 +1,64 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { createClient } from '@/lib/supabase';
 
-export function AssignmentSubmissionForm() {
+export function AssignmentSubmissionForm({ assignmentId, assignmentTitle }: { assignmentId: string | null, assignmentTitle?: string }) {
     const [githubUrl, setGithubUrl] = useState('');
     const [deployedUrl, setDeployedUrl] = useState('');
     const [notes, setNotes] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const supabase = createClient();
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+        };
+        getUser();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!assignmentId || !user) return;
+
         setIsSubmitting(true);
 
-        // Simulate API call
-        setTimeout(() => {
+        const content = `GitHub: ${githubUrl}\nDeployed: ${deployedUrl}\nNotes: ${notes}`;
+
+        const { error } = await supabase.from('submissions').insert({
+            assignment_id: assignmentId,
+            student_id: user.id,
+            content: content,
+            status: 'submitted'
+        });
+
+        if (error) {
+            alert('제출 실패: ' + error.message);
+            setIsSubmitting(false);
+        } else {
             setIsSubmitting(false);
             setIsSuccess(true);
-        }, 1500);
+            // Reset form
+            setGithubUrl('');
+            setDeployedUrl('');
+            setNotes('');
+        }
     };
+
+    if (!assignmentId) {
+        return (
+            <Card style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <p>좌측 목록에서 과제를 선택해주세요.</p>
+            </Card>
+        );
+    }
 
     if (isSuccess) {
         return (
@@ -32,14 +69,16 @@ export function AssignmentSubmissionForm() {
                     과제가 성공적으로 제출되었습니다. <br />
                     강사님의 리뷰가 완료되면 알림을 보내드립니다.
                 </p>
-                <Button onClick={() => setIsSuccess(false)} variant="outline">다른 과제 제출하기</Button>
+                <Button onClick={() => setIsSuccess(false)} variant="outline">수정하기 / 다시 제출</Button>
             </Card>
         );
     }
 
     return (
         <Card>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px' }}>과제 제출</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '8px' }}>과제 제출</h3>
+            <div style={{ marginBottom: '24px', color: 'var(--primary)', fontWeight: 600 }}>{assignmentTitle}</div>
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <Input
                     label="GitHub 저장소 URL"
