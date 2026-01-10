@@ -126,6 +126,13 @@ export default function AdminDashboardPage() {
                     <Card style={{ padding: '20px' }}>
                         <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <li>
+                                <Link href="/dashboard/admin/courses" style={{ width: '100%' }}>
+                                    <Button variant="ghost" fullWidth style={{ justifyContent: 'flex-start', color: 'var(--primary)' }}>
+                                        📚 강의 관리 (수정)
+                                    </Button>
+                                </Link>
+                            </li>
+                            <li>
                                 <Button variant="ghost" fullWidth style={{ justifyContent: 'flex-start' }} onClick={() => handleQuickAction('공지사항')}>
                                     🔔 공지사항 작성
                                 </Button>
