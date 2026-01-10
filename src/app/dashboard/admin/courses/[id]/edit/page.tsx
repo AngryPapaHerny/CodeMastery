@@ -192,30 +192,36 @@ export default function EditCoursePage() {
                     </div>
 
                     {/* Assignments Section */}
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>과제 관리</h2>
+                    <div style={{ marginTop: '60px', paddingTop: '40px', borderTop: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '4px' }}>과제 관리</h2>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>이 강의에 연결된 과제를 관리합니다.</p>
+                            </div>
                             <Link href={`/dashboard/admin/courses/${courseId}/assignments/new`}>
                                 <Button size="sm" variant="outline">
-                                    <Plus size={16} style={{ marginRight: '8px' }} /> 과제 만들기
+                                    <Plus size={16} style={{ marginRight: '8px' }} /> 새 과제 만들기
                                 </Button>
                             </Link>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {assignments.length === 0 ? (
-                                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed var(--border)', borderRadius: '8px' }}>
-                                    등록된 과제가 없습니다.
+                                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed var(--border)', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                                    <p style={{ marginBottom: '12px' }}>아직 등록된 과제가 없습니다.</p>
+                                    <Link href={`/dashboard/admin/courses/${courseId}/assignments/new`}>
+                                        <Button size="sm" variant="ghost">첫 번째 과제 만들기</Button>
+                                    </Link>
                                 </div>
                             ) : (
                                 assignments.map((assignment: any) => (
-                                    <Card key={assignment.id} style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Card key={assignment.id} style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <div>
-                                            <Link href={`/dashboard/admin/courses/${courseId}/assignments/${assignment.id}`} style={{ fontWeight: 600, fontSize: '1.05rem', display: 'block', marginBottom: '4px' }} className="hover:underline">
+                                            <Link href={`/dashboard/admin/courses/${courseId}/assignments/${assignment.id}`} style={{ fontWeight: 600, fontSize: '1.1rem', display: 'block', marginBottom: '4px' }} className="hover:underline">
                                                 {assignment.title}
                                             </Link>
                                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                                {assignment.points}점 | 마감: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '없음'}
+                                                {assignment.points}점 | 마감: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '기한 없음'}
                                             </div>
                                         </div>
                                         <Button variant="ghost" size="sm" onClick={() => handleDeleteAssignment(assignment.id)} style={{ color: '#ef4444' }}>
