@@ -23,15 +23,9 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
     const activeVideoUrl = currentLesson?.video_url || course.video_url;
 
     return (
-        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', paddingTop: '65px' }}>
+        <div className="classroom-container">
             {/* Main Content Area (Video) */}
-            <div style={{
-                flex: 1,
-                backgroundColor: '#000',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative'
-            }}>
+            <div className="classroom-main">
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {renderVideoPlayer(activeVideoUrl)}
                 </div>
@@ -50,13 +44,12 @@ export default function ClassroomLayout({ course, lessons, currentLesson, setCur
             </div>
 
             {/* Right Sidebar */}
-            <div style={{
-                width: isSidebarOpen ? '400px' : '60px',
-                backgroundColor: '#18181b',
-                borderLeft: '1px solid #27272a',
-                display: 'flex',
-                transition: 'width 0.3s ease'
-            }}>
+            <div
+                className="classroom-sidebar"
+                style={{
+                    width: isSidebarOpen ? '400px' : '60px',
+                }}
+            >
                 {/* Collapsible Content Panel */}
                 {isSidebarOpen && (
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

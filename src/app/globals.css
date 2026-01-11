@@ -229,3 +229,52 @@ button {
     text-align: center;
   }
 }
+
+/* Classroom Layout */
+.classroom-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  padding-top: 65px;
+}
+
+.classroom-main {
+  flex: 1;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.classroom-sidebar {
+  background-color: #18181b;
+  border-left: 1px solid #27272a;
+  display: flex;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .classroom-container {
+    flex-direction: column;
+    height: auto;
+    /* Allow scrolling on mobile if content overflows, or keep 100vh fixed? */
+    min-height: 100vh;
+    overflow-y: auto;
+    /* Enable vertical scroll for the whole page */
+  }
+
+  .classroom-main {
+    height: 40vh;
+    /* Fixed height for video player on mobile */
+    flex: none;
+    width: 100%;
+  }
+
+  .classroom-sidebar {
+    width: 100% !important;
+    /* Override inline styles */
+    flex: 1;
+    border-left: none;
+    border-top: 1px solid #27272a;
+  }
+}
