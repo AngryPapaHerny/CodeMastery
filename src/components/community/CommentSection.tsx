@@ -24,17 +24,42 @@ export default function CommentSection({ postId, currentUser, postAuthorId, isQn
     }, [postId]);
 
     const fetchComments = async () => {
-        const { data } = await supabase
+        // 1. Fetch Comments
+        const { data: commentsData, error } = await supabase
             .from('comments')
-            .select(`
-                *,
-                profiles:user_id (id, full_name, avatar_url)
-            `)
+            .select('*')
             .eq('post_id', postId)
-            .order('is_accepted_answer', { ascending: false }) // Accepted first
+            .order('is_accepted_answer', { ascending: false })
             .order('created_at', { ascending: true });
 
-        if (data) setComments(data);
+        if (error) {
+            console.error('Error fetching comments:', error);
+            return;
+        }
+
+        if (!commentsData || commentsData.length === 0) {
+            setComments([]);
+            return;
+        }
+
+        // 2. Fetch Profiles for these comments
+        const userIds = Array.from(new Set(commentsData.map(c => c.user_id)));
+
+        const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', userIds);
+
+        // 3. Merge data
+        const commentsWithProfiles = commentsData.map(comment => {
+            const profile = profilesData?.find(p => p.id === comment.user_id);
+            return {
+                ...comment,
+                profiles: profile || null
+            };
+        });
+
+        setComments(commentsWithProfiles);
     };
 
     const handleSubmit = async () => {
