@@ -8,7 +8,7 @@ export function Footer() {
             marginTop: 'auto',
             backgroundColor: 'var(--surface)'
         }}>
-            <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px' }}>
+            <div className="container footer-container">
                 <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '16px' }}>
                         Code<span className="text-gradient">Mastery</span>
@@ -18,7 +18,7 @@ export function Footer() {
                         누구나 개발자가 될 수 있습니다.
                     </p>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                <div className="footer-links">
                     <div>
                         <h4 style={{ fontWeight: 600, marginBottom: '16px' }}>Platform</h4>
                         <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', color: 'var(--text-secondary)' }}>
